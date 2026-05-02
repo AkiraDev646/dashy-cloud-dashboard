@@ -12,6 +12,7 @@ frontend/dist/
 # AWS Amplify local/generated files
 amplify-backend-original/
 amplify-config-original/
+**/.git-original-backup/
 **/aws-exports.js
 **/amplifyconfiguration.json
 **/amplify/#current-cloud-backend/
