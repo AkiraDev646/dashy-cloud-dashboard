@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Frontend builds
+frontend/build/
+frontend/dist/
+
+# Environment files
+.env
+.env.*
+
+# AWS Amplify local/generated files
+amplify-backend-original/
+amplify-config-original/
+**/aws-exports.js
+**/amplifyconfiguration.json
+**/amplify/#current-cloud-backend/
+**/amplify/.config/local-*
+**/amplify/logs/
+**/amplify/mock-data/
+**/amplify/mock-api-resources/
+**/amplify/backend/amplify-meta.json
+**/amplify/backend/.temp/
+
+# Terraform local state
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.*
+*.tfvars
+
+# System files
+.DS_Store
