@@ -1,61 +1,83 @@
-const statusCards = [
-  { label: 'Frontend hosting', value: 'S3 + CloudFront', state: 'Planned' },
-  { label: 'Authentication', value: 'Amazon Cognito', state: 'Active' },
-  { label: 'Network foundation', value: 'Custom VPC', state: 'Built' },
-  { label: 'Private subnet', value: '10.0.2.0/24', state: 'Built' },
-];
+const todaySummary = {
+  greeting: 'Good morning',
+  location: 'New York, NY',
+  weather: {
+    temperature: '72°F',
+    condition: 'Partly cloudy',
+    detail: 'Light breeze with clear skies later today.',
+  },
+  quote: {
+    text: 'Success is the sum of small efforts repeated day in and day out.',
+    author: 'Robert Collier',
+  },
+  focus: {
+    title: 'Build one cloud skill today',
+    detail: 'Spend 30 minutes improving Dashy or reviewing an AWS service.',
+  },
+};
 
-const buildSteps = [
-  'React dashboard protected by Amplify Auth',
-  'Terraform VPC with public and private subnets',
-  'API Gateway and Lambda integration for live cloud data',
-  'CloudWatch, GuardDuty, and Flow Logs security views',
+const widgets = [
+  {
+    label: 'Weather',
+    value: todaySummary.weather.temperature,
+    detail: todaySummary.weather.condition,
+  },
+  {
+    label: 'Quote',
+    value: 'Daily inspiration',
+    detail: todaySummary.quote.author,
+  },
+  {
+    label: 'Focus',
+    value: todaySummary.focus.title,
+    detail: 'Personal goal',
+  },
 ];
 
 export default function DashboardHome() {
   return (
     <div className="page-stack">
       <div className="page-heading">
-        <span className="eyebrow">Project overview</span>
-        <h3>Dashy turns AWS lab work into a job-ready cloud engineering story.</h3>
+        <span className="eyebrow">Today</span>
+        <h3>{todaySummary.greeting}, welcome to Dashy.</h3>
         <p>
-          This dashboard is being built to show real infrastructure decisions:
-          identity, network isolation, serverless APIs, observability, and
-          security monitoring.
+          Your daily dashboard brings weather, inspiration, and focus into one
+          simple view powered by AWS.
         </p>
       </div>
 
       <div className="metric-grid">
-        {statusCards.map((card) => (
-          <article className="metric-card" key={card.label}>
-            <span>{card.label}</span>
-            <strong>{card.value}</strong>
-            <small>{card.state}</small>
+        {widgets.map((widget) => (
+          <article className="metric-card" key={widget.label}>
+            <span>{widget.label}</span>
+            <strong>{widget.value}</strong>
+            <small>{widget.detail}</small>
           </article>
         ))}
       </div>
 
       <div className="split-layout">
         <section className="panel">
-          <h4>Current architecture</h4>
-          <div className="architecture-flow">
-            <span>User</span>
-            <span>Cognito</span>
-            <span>React dashboard</span>
-            <span>AWS APIs</span>
-            <span>Cloud data</span>
-          </div>
+          <h4>{todaySummary.location}</h4>
+          <p>
+            {todaySummary.weather.temperature} and{' '}
+            {todaySummary.weather.condition.toLowerCase()}.{' '}
+            {todaySummary.weather.detail}
+          </p>
         </section>
 
         <section className="panel">
-          <h4>Build roadmap</h4>
-          <ul className="clean-list">
-            {buildSteps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ul>
+          <h4>Daily Quote</h4>
+          <p>"{todaySummary.quote.text}"</p>
+          <p>{todaySummary.quote.author}</p>
         </section>
       </div>
+
+      <section className="panel">
+        <h4>Daily Focus</h4>
+        <p>{todaySummary.focus.title}</p>
+        <p>{todaySummary.focus.detail}</p>
+      </section>
     </div>
   );
 }
