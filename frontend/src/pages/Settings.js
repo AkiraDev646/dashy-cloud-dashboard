@@ -1,30 +1,48 @@
-const controls = [
-  { label: 'IAM least privilege', status: 'Designing scoped roles' },
-  { label: 'Secrets management', status: 'Use Secrets Manager for API config' },
-  { label: 'Encryption', status: 'Plan KMS keys for sensitive data' },
-  { label: 'Deployment safety', status: 'Add GitHub Actions checks' },
+const preferences = [
+  {
+    label: 'Weather location',
+    value: 'New York, NY',
+    detail: 'This will control which city the weather widget displays.',
+  },
+  {
+    label: 'Temperature unit',
+    value: 'Fahrenheit',
+    detail: 'Users will be able to choose Fahrenheit or Celsius.',
+  },
+  {
+    label: 'Quote category',
+    value: 'Motivation',
+    detail: 'Daily quotes can later be filtered by category or theme.',
+  },
+  {
+    label: 'Daily focus',
+    value: 'Enabled',
+    detail: 'This will let users set or update their daily focus item.',
+  },
 ];
 
 export default function Settings() {
   return (
     <div className="page-stack">
       <div className="page-heading">
-        <span className="eyebrow">Security plan</span>
-        <h3>Dashy should prove that the app was designed with cloud security in mind.</h3>
+        <span className="eyebrow">Preferences</span>
+        <h3>Customize what Dashy shows each day.</h3>
         <p>
-          This page tracks the security controls that will be implemented as the
-          project grows from a working prototype into a portfolio deployment.
+          This page will eventually save user preferences such as weather
+          location, quote style, and daily focus settings.
         </p>
       </div>
 
       <div className="control-grid">
-        {controls.map((control) => (
-          <article className="panel" key={control.label}>
-            <h4>{control.label}</h4>
-            <p>{control.status}</p>
+        {preferences.map((preference) => (
+          <article className="panel" key={preference.label}>
+            <h4>{preference.label}</h4>
+            <p>{preference.value}</p>
+            <p>{preference.detail}</p>
           </article>
         ))}
       </div>
     </div>
   );
 }
+

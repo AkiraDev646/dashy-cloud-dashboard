@@ -1,23 +1,23 @@
-const signals = [
+const trendItems = [
   {
-    name: 'VPC traffic visibility',
-    source: 'VPC Flow Logs',
-    detail: 'Show accepted and rejected traffic patterns across subnets.',
+    name: 'Weather history',
+    source: 'Coming from weather API',
+    detail: 'Track recent temperatures and conditions for the user selected city.',
   },
   {
-    name: 'Threat detection',
-    source: 'GuardDuty',
-    detail: 'Surface findings and explain the recommended response path.',
+    name: 'Focus streak',
+    source: 'Coming from DynamoDB',
+    detail: 'Show how many days the user has set or completed a daily focus item.',
   },
   {
-    name: 'Application health',
-    source: 'CloudWatch',
-    detail: 'Track Lambda errors, latency, and API Gateway request volume.',
+    name: 'Quote archive',
+    source: 'Coming from quote API',
+    detail: 'Keep simple record of previous daily quotes, for reflection.',
   },
   {
-    name: 'Data access',
-    source: 'DynamoDB',
-    detail: 'Read dashboard records through least-privilege Lambda roles.',
+    name: 'Dashboard activity',
+    source: 'Coming from app events',
+    detail: 'Summarize recent dashboard visits and preference updates.',
   },
 ];
 
@@ -25,22 +25,22 @@ export default function Analytics() {
   return (
     <div className="page-stack">
       <div className="page-heading">
-        <span className="eyebrow">Cloud signals</span>
-        <h3>Analytics will connect dashboard views to AWS observability tools.</h3>
+        <span className="eyebrow">Daily trends</span>
+        <h3>See patterns behind your daily routine.</h3>
         <p>
-          The goal is not only to show charts. Each signal should explain what
-          service produced it, why it matters, and what an engineer would do next.
+          Dashy will use this page to show simple history and trends 
+          from your weather, quote, focus, and dashboard preference data.
         </p>
       </div>
 
       <div className="signal-table">
-        {signals.map((signal) => (
-          <article className="signal-row" key={signal.name}>
+        {trendItems.map((item) => (
+          <article className="signal-row" key={item.name}>
             <div>
-              <strong>{signal.name}</strong>
-              <span>{signal.source}</span>
+              <strong>{item.name}</strong>
+              <span>{item.source}</span>
             </div>
-            <p>{signal.detail}</p>
+            <p>{item.detail}</p>
           </article>
         ))}
       </div>

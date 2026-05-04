@@ -12,9 +12,9 @@ import './App.css';
 Amplify.configure(awsconfig);
 
 const navItems = [
-  { to: '/', label: 'Overview', end: true },
-  { to: '/analytics', label: 'Cloud Signals' },
-  { to: '/settings', label: 'Security Plan' },
+  { to: '/', label: 'Today', end: true },
+  { to: '/analytics', label: 'Daily Trends' },
+  { to: '/settings', label: 'Preferences' },
 ];
 
 function Layout({ user, signOut }) {
@@ -25,7 +25,7 @@ function Layout({ user, signOut }) {
           <div className="brand-mark">D</div>
           <div>
             <h1>Dashy</h1>
-            <p>AWS portfolio dashboard</p>
+            <p>Personal dashboard</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ function Layout({ user, signOut }) {
       <main className="main-panel">
         <header className="topbar">
           <div>
-            <span className="eyebrow">Cloud engineering lab</span>
+            <span className="eyebrow">Daily dashboard</span>
             <h2>Dashy Control Center</h2>
           </div>
           <div className="user-area">
