@@ -1,3 +1,7 @@
+import { useEffect, useState } from 'react';
+
+const quoteApiUrl = 'https://9g9u8vvljk.execute-api.us-east-1.amazonaws.com/quote';
+
 const todaySummary = {
   greeting: 'Good morning',
   location: 'New York, NY',
@@ -16,26 +20,52 @@ const todaySummary = {
   },
 };
 
-const widgets = [
-  {
-    label: 'Weather',
-    value: todaySummary.weather.temperature,
-    detail: todaySummary.weather.condition,
-  },
-  {
-    label: 'Quote',
-    value: 'Daily inspiration',
-    detail: todaySummary.quote.author,
-  },
-  {
-    label: 'Focus',
-    value: todaySummary.focus.title,
-    detail: 'Personal goal',
-  },
-];
+  export default function DashboardHome() {
+    const [quote, setQuote] = useState(todaySummary.quote);
+    const [quoteStatus, setQuoteStatus] = useState('Loading quote from AWS...');
+useEffect(() => {
+    async function loadQuote() {
+      try {
+        const response = await fetch(quoteApiUrl);
 
-export default function DashboardHome() {
-  return (
+        if (!response.ok) {
+          throw new Error('Quote API request failed');
+        }
+
+        const data = await response.json();
+
+        setQuote({
+          text: data.quote,
+          author: data.author,
+        });
+        setQuoteStatus('Live from AWS Lambda');
+      } catch (error) {
+        setQuoteStatus('Using fallback quote');
+      }
+    }
+
+    loadQuote();
+  }, []);
+
+const widgets = [
+    {
+      label: 'Weather',
+      value: todaySummary.weather.temperature,
+      detail: todaySummary.weather.condition,
+    },
+    {
+      label: 'Quote',
+      value: 'Daily inspiration',
+      detail: quote.author,
+    },
+    {
+      label: 'Focus',
+      value: todaySummary.focus.title,
+      detail: 'Personal goal',
+    },
+  ];
+
+return (
     <div className="page-stack">
       <div className="page-heading">
         <span className="eyebrow">Today</span>
@@ -68,9 +98,11 @@ export default function DashboardHome() {
 
         <section className="panel">
           <h4>Daily Quote</h4>
-          <p>"{todaySummary.quote.text}"</p>
-          <p>{todaySummary.quote.author}</p>
+          <p>"{quote.text}"</p>
+          <p>{quote.author}</p>
+          <p>{quoteStatus}</p>
         </section>
+
       </div>
 
       <section className="panel">

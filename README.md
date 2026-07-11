@@ -36,6 +36,20 @@ dashy/
 - Amazon VPC with public and private subnets.
 - Terraform for infrastructure as code.
 
+## Serverless Quote API
+
+Dashy uses a serverless quote API to demonstrate how a React frontend can connect to AWS backend services without managing an EC2 server.
+
+The quote flow works like this:
+
+```text
+React frontend -> API Gateway -> Lambda -> JSON response -> React dashboard
+```
+
+The React dashboard calls an API Gateway endpoint with `fetch()`. API Gateway acts as the public HTTP entry point and invokes the Lambda function. The Lambda function runs backend logic and returns quote data as JSON. React then updates the dashboard with the live quote response.
+
+In the current version, the Lambda function returns quotes from a small list inside the function code. This keeps the first version simple while still demonstrating the serverless request/response pattern. A future version could store quotes in DynamoDB or retrieve them from an external API.
+
 ## Local Development
 
 ```bash
