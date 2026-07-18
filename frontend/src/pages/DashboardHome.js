@@ -87,21 +87,32 @@ return (
       </div>
 
       <div className="split-layout">
-        <section className="panel">
-          <h4>{todaySummary.location}</h4>
-          <p>
-            {todaySummary.weather.temperature} and{' '}
-            {todaySummary.weather.condition.toLowerCase()}.{' '}
-            {todaySummary.weather.detail}
-          </p>
+        <section className="weather-hero-card">
+        <div>
+          <p className="weather-location">{todaySummary.location}</p>
+          <h4>{todaySummary.weather.temperature}</h4>
+          <p className="weather-condition">{todaySummary.weather.condition}</p>
+          <p className="weather-detail">{todaySummary.weather.detail}</p>
+        </div>
+
+  <div className="weather-art" aria-hidden="true">
+    <div className="weather-sun"></div>
+    <div className="weather-cloud weather-cloud-one"></div>
+    <div className="weather-cloud weather-cloud-two"></div>
+  </div>
         </section>
 
-        <section className="panel">
+
+        <section className="panel quote-panel">
+          <div className="panel-header-row">
           <h4>Daily Quote</h4>
-          <p>"{quote.text}"</p>
-          <p>{quote.author}</p>
-          <p>{quoteStatus}</p>
-        </section>
+          </div>
+
+
+  <p className="quote-text">"{quote.text}"</p>
+  <p className="quote-author">{quote.author}</p>
+</section>
+
 
       </div>
 
