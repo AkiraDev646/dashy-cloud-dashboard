@@ -45,6 +45,24 @@ resource "aws_iam_role_policy" "get_quote_lambda_logs" {
   })
 }
 
+resource "aws_iam_role_policy" "get_quote_lambda_dynamodb" {
+  name = "${var.app_name}-get-quote-lambda-dynamodb"
+  role = aws_iam_role.get_quote_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:Scan"
+        ]
+        Resource = aws_dynamodb_table.quotes.arn
+      }
+    ]
+  })
+}
+
 resource "aws_lambda_function" "get_quote" {
   function_name    = "${var.app_name}-get-quote"
   role             = aws_iam_role.get_quote_lambda.arn
@@ -52,6 +70,12 @@ resource "aws_lambda_function" "get_quote" {
   runtime          = "python3.12"
   filename         = data.archive_file.get_quote_lambda.output_path
   source_code_hash = data.archive_file.get_quote_lambda.output_base64sha256
+
+  environment {
+    variables = {
+      QUOTES_TABLE_NAME = aws_dynamodb_table.quotes.name
+    }
+  }
 
   tags = {
     Project = var.app_name
@@ -104,3 +128,17 @@ resource "aws_lambda_permission" "allow_api_gateway_get_quote" {
   source_arn    = "${aws_apigatewayv2_api.dashy.execution_arn}/*/*"
 }
 
+resource "aws_dynamodb_table" "quotes" {
+  name         = "${var.app_name}-quotes"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "quote_id"
+
+  attribute {
+    name = "quote_id"
+    type = "S"
+  }
+
+  tags = {
+    Project = var.app_name
+  }
+}

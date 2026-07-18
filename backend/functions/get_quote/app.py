@@ -1,6 +1,11 @@
 import json
+import os
 import random
 
+import boto3
+
+dynamodb = boto3.resource("dynamodb")
+quotes_table_name = os.environ.get("QUOTES_TABLE_NAME")
 
 QUOTES = [
     {
@@ -17,9 +22,21 @@ QUOTES = [
     },
 ]
 
+def get_quote_from_dynamodb():
+    if not quotes_table_name:
+        return None
+
+    table = dynamodb.Table(quotes_table_name)
+    response = table.scan()
+    items = response.get("Items", [])
+
+    if not items:
+        return None
+
+    return random.choice(items)
 
 def lambda_handler(event, context):
-    quote = random.choice(QUOTES)
+    quote = get_quote_from_dynamodb() or random.choice(QUOTES)
 
     return {
         "statusCode": 200,
