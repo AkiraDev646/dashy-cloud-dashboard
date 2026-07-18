@@ -43,12 +43,14 @@ Dashy uses a serverless quote API to demonstrate how a React frontend can connec
 The quote flow works like this:
 
 ```text
-React frontend -> API Gateway -> Lambda -> JSON response -> React dashboard
+
+React frontend -> API Gateway -> Lambda -> DynamoDB -> JSON response -> React dashboard
+
 ```
 
 The React dashboard calls an API Gateway endpoint with `fetch()`. API Gateway acts as the public HTTP entry point and invokes the Lambda function. The Lambda function runs backend logic and returns quote data as JSON. React then updates the dashboard with the live quote response.
-
-In the current version, the Lambda function returns quotes from a small list inside the function code. This keeps the first version simple while still demonstrating the serverless request/response pattern. A future version could store quotes in DynamoDB or retrieve them from an external API.
+In the current version, quote records are stored in DynamoDB. The Lambda function scans the `dashy-quotes` table, randomly selects a quote item, and returns it as JSON. If DynamoDB does not return any items, Lambda falls back to a small hardcoded quote list so the dashboard can still respond gracefully.
+A future version may pull quotes from an external API. 
 
 ## Local Development
 
