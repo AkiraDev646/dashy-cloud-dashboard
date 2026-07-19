@@ -4,6 +4,12 @@ data "archive_file" "get_quote_lambda" {
   output_path = "${path.module}/build/get-quote.zip"
 }
 
+data "archive_file" "get_weather_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/../backend/functions/get_weather/app.py"
+  output_path = "${path.module}/build/get-weather.zip"
+}
+
 resource "aws_iam_role" "get_quote_lambda" {
   name = "${var.app_name}-get-quote-lambda-role"
 
@@ -83,6 +89,26 @@ resource "aws_lambda_function" "get_quote" {
   }
 }
 
+resource "aws_lambda_function" "get_weather" {
+  function_name    = "${var.app_name}-get-weather"
+  role             = aws_iam_role.get_quote_lambda.arn
+  handler          = "app.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.get_weather_lambda.output_path
+  source_code_hash = data.archive_file.get_weather_lambda.output_base64sha256
+  timeout          = 10
+
+  environment {
+    variables = {
+      OPENWEATHER_SECRET_NAME = var.openweather_secret_name
+    }
+  }
+
+  tags = {
+    Project = var.app_name
+  }
+}
+
 resource "aws_apigatewayv2_api" "dashy" {
   name          = "${var.app_name}-api"
   protocol_type = "HTTP"
@@ -105,10 +131,23 @@ resource "aws_apigatewayv2_integration" "get_quote" {
   payload_format_version = "2.0"
 }
 
+resource "aws_apigatewayv2_integration" "get_weather" {
+  api_id                 = aws_apigatewayv2_api.dashy.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.get_weather.invoke_arn
+  payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_route" "get_quote" {
   api_id    = aws_apigatewayv2_api.dashy.id
   route_key = "GET /quote"
   target    = "integrations/${aws_apigatewayv2_integration.get_quote.id}"
+}
+
+resource "aws_apigatewayv2_route" "get_weather" {
+  api_id    = aws_apigatewayv2_api.dashy.id
+  route_key = "GET /weather"
+  target    = "integrations/${aws_apigatewayv2_integration.get_weather.id}"
 }
 
 resource "aws_apigatewayv2_stage" "default" {
@@ -125,6 +164,14 @@ resource "aws_lambda_permission" "allow_api_gateway_get_quote" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.get_quote.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_apigatewayv2_api.dashy.execution_arn}/*/*"
+}
+
+resource "aws_lambda_permission" "allow_api_gateway_get_weather" {
+  statement_id  = "AllowExecutionFromAPIGatewayWeather"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_weather.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.dashy.execution_arn}/*/*"
 }
@@ -165,3 +212,4 @@ resource "aws_iam_role_policy" "get_quote_lambda_openweather_secret" {
     ]
   })
 }
+
