@@ -73,7 +73,8 @@ resource "aws_lambda_function" "get_quote" {
 
   environment {
     variables = {
-      QUOTES_TABLE_NAME = aws_dynamodb_table.quotes.name
+      QUOTES_TABLE_NAME       = aws_dynamodb_table.quotes.name
+      OPENWEATHER_SECRET_NAME = var.openweather_secret_name
     }
   }
 
@@ -141,4 +142,26 @@ resource "aws_dynamodb_table" "quotes" {
   tags = {
     Project = var.app_name
   }
+}
+
+data "aws_secretsmanager_secret" "openweather" {
+  name = var.openweather_secret_name
+}
+
+resource "aws_iam_role_policy" "get_quote_lambda_openweather_secret" {
+  name = "${var.app_name}-get-quote-lambda-openweather-secret"
+  role = aws_iam_role.get_quote_lambda.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = data.aws_secretsmanager_secret.openweather.arn
+      }
+    ]
+  })
 }
