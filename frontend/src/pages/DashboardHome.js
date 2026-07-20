@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const quoteApiUrl = 'https://9g9u8vvljk.execute-api.us-east-1.amazonaws.com/quote';
+const weatherApiUrl = 'https://9g9u8vvljk.execute-api.us-east-1.amazonaws.com/weather';
 
 const todaySummary = {
   greeting: 'Good morning',
@@ -23,6 +24,9 @@ const todaySummary = {
   export default function DashboardHome() {
     const [quote, setQuote] = useState(todaySummary.quote);
     const [quoteStatus, setQuoteStatus] = useState('Loading quote from AWS...');
+    const [weather, setWeather] = useState(todaySummary.weather);
+    const [location, setLocation] = useState(todaySummary.location);
+
 useEffect(() => {
     async function loadQuote() {
       try {
@@ -47,12 +51,38 @@ useEffect(() => {
     loadQuote();
   }, []);
 
-const widgets = [
+  useEffect(() => {
+  async function loadWeather() {
+    try {
+      const response = await fetch(weatherApiUrl);
+
+      if (!response.ok) {
+        throw new Error('Weather API request failed');
+      }
+
+      const data = await response.json();
+
+      setWeather({
+        temperature: data.temperature,
+        condition: data.condition,
+        detail: data.detail,
+      });
+      setLocation(data.location);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  loadWeather();
+}, []);
+
+      const widgets = [
     {
       label: 'Weather',
-      value: todaySummary.weather.temperature,
-      detail: todaySummary.weather.condition,
+      value: weather.temperature,
+      detail: weather.condition,
     },
+
     {
       label: 'Quote',
       value: 'Daily inspiration',
@@ -88,12 +118,12 @@ return (
 
       <div className="split-layout">
         <section className="weather-hero-card">
-        <div>
-          <p className="weather-location">{todaySummary.location}</p>
-          <h4>{todaySummary.weather.temperature}</h4>
-          <p className="weather-condition">{todaySummary.weather.condition}</p>
-          <p className="weather-detail">{todaySummary.weather.detail}</p>
-        </div>
+  <div>
+      <p className="weather-location">{location}</p>
+      <h4>{weather.temperature}</h4>
+      <p className="weather-condition">{weather.condition}</p>
+      <p className="weather-detail">{weather.detail}</p>
+    </div>
 
   <div className="weather-art" aria-hidden="true">
     <div className="weather-sun"></div>
