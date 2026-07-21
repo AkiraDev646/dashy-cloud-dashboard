@@ -429,3 +429,23 @@
   width: 38px;
   height: 38px;
 }
+
+.weather-day {
+  background:
+    linear-gradient(135deg, rgba(14, 165, 233, 0.95), rgba(37, 99, 235, 0.9)),
+    linear-gradient(180deg, #7dd3fc 0%, #dbeafe 100%);
+}
+
+.weather-night {
+  background:
+    radial-gradient(circle at 82% 18%, rgba(226, 232, 240, 0.7) 0 28px, transparent 30px),
+    linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #312e81 100%);
+}
+
+.weather-time {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1rem;
+  font-weight: 700;
+}
+

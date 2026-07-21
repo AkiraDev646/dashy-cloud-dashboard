@@ -9,8 +9,9 @@ import boto3
 secretsmanager = boto3.client("secretsmanager")
 openweather_secret_name = os.environ.get("OPENWEATHER_SECRET_NAME")
 
-NEW_YORK_LAT = "40.7128"
-NEW_YORK_LON = "-74.0060"
+DEFAULT_LAT = "40.7128"
+DEFAULT_LON = "-74.0060"
+
 
 
 def get_openweather_api_key():
@@ -23,13 +24,13 @@ def get_openweather_api_key():
     return secret["OPENWEATHER_API_KEY"]
 
 
-def get_weather():
+def get_weather(lat, lon):
     api_key = get_openweather_api_key()
-
     query_params = urllib.parse.urlencode(
         {
-            "lat": NEW_YORK_LAT,
-            "lon": NEW_YORK_LON,
+            "lat": lat,
+            "lon": lon,
+
             "appid": api_key,
             "units": "imperial",
         }
@@ -43,17 +44,30 @@ def get_weather():
     weather = data["weather"][0]
     main = data["main"]
 
+    timezone_offset = data.get("timezone", 0)
+    local_timestamp = data.get("dt", 0) + timezone_offset
+    sunrise_timestamp = data["sys"]["sunrise"] + timezone_offset
+    sunset_timestamp = data["sys"]["sunset"] + timezone_offset
+    is_daytime = sunrise_timestamp <= local_timestamp <= sunset_timestamp
+
     return {
-        "location": data["name"],
-        "temperature": f"{round(main['temp'])}°F",
-        "condition": weather["main"],
-        "detail": weather["description"].capitalize(),
+    "location": data["name"],
+    "temperature": f"{round(main['temp'])}°F",
+    "condition": weather["main"],
+    "detail": weather["description"].capitalize(),
+    "localTime": local_timestamp,
+    "isDaytime": is_daytime,
     }
 
 
 def lambda_handler(event, context):
     try:
-        weather = get_weather()
+        query_params = event.get("queryStringParameters") or {}
+        lat = query_params.get("lat", DEFAULT_LAT)
+        lon = query_params.get("lon", DEFAULT_LON)
+
+        weather = get_weather(lat, lon)
+
 
         return {
             "statusCode": 200,

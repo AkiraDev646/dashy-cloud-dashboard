@@ -26,8 +26,21 @@ const todaySummary = {
     const [quoteStatus, setQuoteStatus] = useState('Loading quote from AWS...');
     const [weather, setWeather] = useState(todaySummary.weather);
     const [location, setLocation] = useState(todaySummary.location);
+    const [weatherLoadedAt, setWeatherLoadedAt] = useState(Date.now());
+    const [clockTick, setClockTick] = useState(Date.now());
+    const weatherLocalTimestamp = weather.localTime
+      ? weather.localTime * 1000 + (clockTick - weatherLoadedAt)
+      : null;
 
-useEffect(() => {
+    const weatherLocalTime = weatherLocalTimestamp
+      ? new Date(weatherLocalTimestamp).toLocaleTimeString([], {
+          hour: 'numeric',
+          minute: '2-digit',
+          timeZone: 'UTC',
+        })
+      : null;
+
+    useEffect(() => {
     async function loadQuote() {
       try {
         const response = await fetch(quoteApiUrl);
@@ -52,31 +65,76 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-  async function loadWeather() {
+  async function fetchWeather(url) {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error('Weather API request failed');
+    }
+
+    return response.json();
+  }
+
+  async function updateWeather(url) {
     try {
-      const response = await fetch(weatherApiUrl);
-
-      if (!response.ok) {
-        throw new Error('Weather API request failed');
-      }
-
-      const data = await response.json();
+      const data = await fetchWeather(url);
 
       setWeather({
-        temperature: data.temperature,
-        condition: data.condition,
-        detail: data.detail,
-      });
-      setLocation(data.location);
+      temperature: data.temperature,
+      condition: data.condition,
+      detail: data.detail,
+      localTime: data.localTime,
+      isDaytime: data.isDaytime,
+    });
+    setLocation(data.location);
+    setWeatherLoadedAt(Date.now());
+    setClockTick(Date.now());
+
     } catch (error) {
       console.error(error);
     }
   }
 
-  loadWeather();
+  let weatherInterval;
+
+function startWeatherUpdates(url) {
+  updateWeather(url);
+
+  weatherInterval = setInterval(() => {
+    updateWeather(url);
+  }, 600000);
+}
+
+if (!navigator.geolocation) {
+  startWeatherUpdates(weatherApiUrl);
+
+  return () => clearInterval(weatherInterval);
+}
+
+navigator.geolocation.getCurrentPosition(
+  (position) => {
+    const { latitude, longitude } = position.coords;
+    const localizedWeatherUrl = `${weatherApiUrl}?lat=${latitude}&lon=${longitude}`;
+
+    startWeatherUpdates(localizedWeatherUrl);
+  },
+  () => {
+    startWeatherUpdates(weatherApiUrl);
+  }
+);
+
+return () => clearInterval(weatherInterval);
 }, []);
 
-      const widgets = [
+useEffect(() => {
+  const clockInterval = setInterval(() => {
+    setClockTick(Date.now());
+  }, 60000);
+
+  return () => clearInterval(clockInterval);
+}, []);
+
+    const widgets = [
     {
       label: 'Weather',
       value: weather.temperature,
@@ -117,19 +175,20 @@ return (
       </div>
 
       <div className="split-layout">
-        <section className="weather-hero-card">
-  <div>
-      <p className="weather-location">{location}</p>
-      <h4>{weather.temperature}</h4>
-      <p className="weather-condition">{weather.condition}</p>
-      <p className="weather-detail">{weather.detail}</p>
-    </div>
+        <section className={`weather-hero-card ${weather.isDaytime === false ? 'weather-night' : 'weather-day'}`}>
+      <div>
+        <p className="weather-location">{location}</p>
+        <h4>{weather.temperature}</h4>
+        <p className="weather-condition">{weather.condition}</p>
+          {weatherLocalTime && <p className="weather-time">Local time: {weatherLocalTime}</p>}
+        <p className="weather-detail">{weather.detail}</p>
+      </div>
 
-  <div className="weather-art" aria-hidden="true">
-    <div className="weather-sun"></div>
-    <div className="weather-cloud weather-cloud-one"></div>
-    <div className="weather-cloud weather-cloud-two"></div>
-  </div>
+      <div className="weather-art" aria-hidden="true">
+      <div className="weather-sun"></div>
+      <div className="weather-cloud weather-cloud-one"></div>
+      <div className="weather-cloud weather-cloud-two"></div>
+        </div>
         </section>
 
 
